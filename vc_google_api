@@ -1,0 +1,119 @@
+import subprocess as sb
+import os
+import speech_recognition as sr
+import pyttsx3 
+print('---------------------------Welcome to AWS VC!!! Happy to Help!!!---------------------------\n')
+pyttsx3.speak("Hello user. How can I help you? ")
+r = sr.Recognizer()
+while(True):
+    pyttsx3.speak("plz speak your requirement")
+    print("Speak your requirement...We are listening..")
+    with sr.Microphone() as source:
+            print("Speak now:")
+            audio = r.listen(source)
+            print("This is what we got you!")
+    requirement=r.recognize_google(audio)
+    x= requirement
+    pyttsx3.speak("here we go")
+    if("dont" in x )or ("not" in x):
+       continue
+    elif(("run" in x) or ("open" in x) or ("launch" in x))and(("key"in x)or ("pair" in x)): 
+        pyttsx3.speak("What will be the name of key pair")
+        r1 = sr.Recognizer()
+        with sr.Microphone() as source:
+            print("Speak now:")
+            audio = r1.listen(source)
+            print("This is what we got you!")
+        g=r.recognize_google(audio)
+        print(g)
+        cmd = "aws ec2 create-key-pair --key-name {}".format(g)
+        #os.system("aws ec2 create-key-pair --key-name jj")
+        os.system(cmd)
+        
+    elif(("run" in x) or ("open" in x) or ("launch" in x))and(("security"in x)or ("group" in x)):
+        pyttsx3.speak("what will be the name of security group ")
+        print("speak the name of your security group")
+        r = sr.Recognizer()
+        with sr.Microphone() as source:
+            print("Waiting for you")
+            audio = r.listen(source)
+            print("This is what we got you!")
+        s=r.recognize_google(audio)
+        print("enter the discription of your security group")
+        e=input()
+        cmd = 'aws ec2 create-security-group --group-name {0} --description "{1}"'.format(s, e)
+        os.system(cmd)
+    elif(("add" in x) or ("give" in x) or ("attach" in x))and(("rule"in x)or ("ingress" in x)):
+        pyttsx3.speak("please choose a suitable option")
+        print("""\n
+                        Enter the rule you want to add
+                         1: ssh
+                         2: http
+                         3: Custom tcp""")
+        r = sr.Recognizer()
+        with sr.Microphone() as source:
+            print("Speak now:")
+            audio = r.listen(source)
+            print("This is what we got you!")
+        g=r.recognize_google(audio) 
+        print(g)
+        h=int(g)               
+        if(h==1):
+            print("Enter the security group id")
+            sg=input()
+            os.system("aws ec2 authorize-security-group-ingress  --group-id {}     --protocol tcp       --port 22       --cidr 0.0.0.0/0".format(sg))
+        elif(h==2):
+            print("Enter the security group id")
+            sg=input()
+            os.system("aws ec2 authorize-security-group-ingress  --group-id {}     --protocol http       --port 80       --cidr 0.0.0.0/0".format(sg))
+        elif(h==3):
+            print("Enter the security group id")
+            sg=input()
+            print("enter the tcp port ")
+            port=input()
+            os.system("aws ec2 authorize-security-group-ingress  --group-id {}     --protocol tcp       --port {}       --cidr 0.0.0.0/0".format(sg,port))
+        elif(h>3):
+            print("pls enter a valid option")   
+    elif(("run" in x) or ("create" in x) or ("launch" in x))and(("ec2"in x)or ("instance" in x)):
+        pyttsx3.speak("plese enter the following details for the proper functioning")
+        print("enter the ami-id")
+        ami=input()
+        print("enetr the instance type")
+        typei=input()
+        print("enter the security group id you want to attach")
+        sgid=input()
+        print("number of instances you want to launch")
+        count=input()
+        print("enetr the key you want to attach")
+        key=input()
+        os.system("aws ec2 run-instances --image-id {0} --instance-type {1} --count {2} --key-name {3} --security-group-ids {4}".format(ami,typei,count,key,sgid)) 
+        
+    elif ("fuck off" in x) or ("bye" in x) or ("stop" in x) or ("quit" in x):
+       pyttsx3.speak("It was plasure helping you. See you soon!!")
+       exit()
+    elif("volume" in x) and (" instance" in x):
+       pyttsx3.speak("plese enter the following details for the proper functioning")
+       print("enter the instance id")
+       iid=input()
+       print("enter the volume id")
+       vid=input()
+       os.system("aws ec2 attach-volume --volume-id {0} --instance-id {1} --device /dev/sdf".format(vid,iid))
+    elif(("run" in x) or ("create" in x) or ("launch" in x))and(("volume"in x)): 
+        pyttsx3.speak("What will be the size of the EBS volume in gb")
+        r2 = sr.Recognizer()
+        with sr.Microphone() as source:
+            print("Waiting for you")
+            audio = r.listen(source)
+            print("This is what we got you!")
+        g=r2.recognize_google(audio) 
+        cmd = "aws ec2 create-volume --volume-type gp2 --size {} --availability-zone ap-south-1a".format(g)
+        os.system(cmd)
+        
+    elif("show " in x) and ("instances" in x):
+        cmd='aws ec2 describe-instances --filters Name=tag-key,Values=Name --query "Reservations[*].Instances[*].{Instance:InstanceId,AZ:Placement.AvailabilityZone,Name:Tags[0].Value}" --output text'
+        os.system(cmd)
+    else:
+       pyttsx3.speak("Sorry! I didnt recognize. plz try again!")
+       continue
+    
+    
